@@ -12,13 +12,15 @@ use Illuminate\Support\Facades\DB;
  */
 class QueryDemoController extends Controller
 {
+    private const int ORDERS = 20;
+
     /**
-     * ❌ Lazy loading: 1 consulta de pedidos + 1 por usuario + 1 por items = ~101 consultas.
+     * ❌ Lazy loading: 1 consulta de pedidos + 1 por usuario + 1 por items = ~41 consultas.
      */
     public function lazyLoading(): JsonResponse
     {
         return $this->measure('lazy loading (N+1)', function (): array {
-            return Order::query()->latest()->limit(50)->get()
+            return Order::query()->latest()->limit(self::ORDERS)->get()
                 ->map(fn (Order $order): array => [
                     'number' => $order->number,
                     'customer' => $order->user->name,
@@ -39,7 +41,7 @@ class QueryDemoController extends Controller
                 ->with('user:id,name')
                 ->withCount('items')
                 ->latest()
-                ->limit(50)
+                ->limit(self::ORDERS)
                 ->get()
                 ->map(fn (Order $order): array => [
                     'number' => $order->number,
@@ -55,6 +57,7 @@ class QueryDemoController extends Controller
      */
     private function measure(string $strategy, Closure $callback): JsonResponse
     {
+        DB::connection()->getPdo();
         DB::flushQueryLog();
         DB::enableQueryLog();
         $startedAt = hrtime(true);

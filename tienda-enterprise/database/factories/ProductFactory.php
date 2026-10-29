@@ -21,7 +21,10 @@ class ProductFactory extends Factory
     {
         return [
             'category_id' => Category::factory(),
-            'name' => Str::title(fake()->words(3, true)),
+            'name' => fake()->randomElement(['Laptop', 'Mouse inalámbrico',
+             'Teclado mecánico', 'Monitor 24 pulgadas', 'Audífonos', 'Cámara web', 
+             'Disco duro externo', 'Memoria USB', 'Impresora', 'Parlante bluetooth', 
+             'Silla de oficina', 'Escritorio']),
             'sku' => strtoupper(fake()->unique()->bothify('SKU-####-??')),
             'price' => fake()->randomFloat(2, 5, 500),
             'stock' => fake()->numberBetween(10, 100),
